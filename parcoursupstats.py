@@ -50,8 +50,9 @@ HEADERS = {
 KEYS = ['etablissement', 'ville', 'academie', 'url', 'formation',
         'classes', 'places', 'places17', 'voeux', 'voeux17', 'boursier']
 
-BASE_URL = 'https://dossier.parcoursup.fr/Candidat/'
-
+#old url : 
+#BASE_URL = 'https://dossier.parcoursup.fr/Candidat/'
+BASE_URL = 'https://dossierappel.parcoursup.fr/Candidat/'
 
 def print_progress(iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
     """
@@ -97,7 +98,7 @@ def get_formations_page(page):
     @params:
     page : page number
     """
-    url = 'https://dossier.parcoursup.fr/Candidat/recherche?ACTION=0&page=%d' % page
+    url = BASE_URL + 'recherche?ACTION=0&page=%d' % page
     parcoursup_request = my_session.get(url, headers=HEADERS)
     parcoursup_html = pq(parcoursup_request.text)
 
@@ -193,7 +194,7 @@ def get_formations():
     """
     Call to retrive formations, get number of page for each formation in a specific city
     """
-    url = 'https://dossier.parcoursup.fr/Candidat/recherche?ACTION=0&page=0'
+    url = BASE_URL + 'recherche?ACTION=0&page=0'
     parcoursup_request = my_session.get(url, headers=HEADERS)
     parcoursup_html = pq(parcoursup_request.text)
     page_bloc = pq(parcoursup_html('ul').filter('.pagination'))
@@ -228,7 +229,7 @@ def get_all_formations():
     """
     Call to iterate for all city and found all formations avaiable in this city
     """
-    parcoursup_request = my_session.post('https://dossier.parcoursup.fr/Candidat/' \
+    parcoursup_request = my_session.post(BASE_URL + \
                                          'recherche%s?ACTION=1'
                                          % (';jsessionid=' + jsessionid),
                                          data=build_data(sender='typeFormation', g_tf_cod='-1'),
@@ -250,14 +251,14 @@ def get_all_formations():
     for critere_selected in formation_critere:
         for formationCrit_key in list(critere_selected.keys()):
 
-            parcoursup_request = my_session.post('https://dossier.parcoursup.fr/Candidat/' \
+            parcoursup_request = my_session.post(BASE_URL + \
                                                  'recherche?ACTION=1',
                                                  data=build_data(sender='ville',
                                                                  g_tf_cod='-1',
                                                                  b_cm_cod=formationCrit_key),
                                                  headers=HEADERS)
 
-            url = 'https://dossier.parcoursup.fr/Candidat/recherche?ACTION=2#resultats'
+            url = BASE_URL + 'recherche?ACTION=2#resultats'
             parcoursup_request = my_session.get(url, headers=HEADERS)
             get_formations()
             progress_meter = progress_meter + 1
@@ -267,7 +268,7 @@ def get_all_formations():
 
 my_session = requests.Session()
 
-my_session.get('https://dossier.parcoursup.fr/Candidat/recherche', headers=HEADERS)
+my_session.get(BASE_URL + 'recherche', headers=HEADERS)
 
 cookies = requests.utils.dict_from_cookiejar(my_session.cookies)
 jsessionid = cookies['JSESSIONID']
